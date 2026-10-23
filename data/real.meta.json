@@ -1,0 +1,29 @@
+[
+  {
+    "id": "btc-usd-1d",
+    "name": "Bitcoin / USDT",
+    "blurb": "Daily candles, Jan 2020 onward",
+    "kind": "real",
+    "source": "Binance public market data (data-api.binance.vision), daily klines",
+    "barsPerYear": 365,
+    "file": "btc-usd-1d.csv"
+  },
+  {
+    "id": "eth-usd-1d",
+    "name": "Ethereum / USDT",
+    "blurb": "Daily candles, Jan 2020 onward",
+    "kind": "real",
+    "source": "Binance public market data (data-api.binance.vision), daily klines",
+    "barsPerYear": 365,
+    "file": "eth-usd-1d.csv"
+  },
+  {
+    "id": "sol-usd-1d",
+    "name": "Solana / USDT",
+    "blurb": "Daily candles, Sep 2020 onward",
+    "kind": "real",
+    "source": "Binance public market data (data-api.binance.vision), daily klines",
+    "barsPerYear": 365,
+    "file": "sol-usd-1d.csv"
+  }
+]

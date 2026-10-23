@@ -1,0 +1,22 @@
+services:
+  proveit:
+    build: .
+    image: prove-it-backtester
+    ports:
+      - "8787:8787"
+    env_file:
+      - path: .env      # optional; the app runs with no keys at all
+        required: false
+    restart: unless-stopped
+    # Defense in depth for the container itself (the per-run sandbox is a separate layer inside it):
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+      # OPTIONAL, stronger network isolation for each backtest (`unshare -rn`):
+      # Docker's default seccomp profile blocks unprivileged user namespaces, so the
+      # "network egress" layer shows "not available" by default. To enable it you must
+      # relax seccomp, which loosens the container. Read docs/DEPLOY_VULTR.md first.
+      # - seccomp=unconfined

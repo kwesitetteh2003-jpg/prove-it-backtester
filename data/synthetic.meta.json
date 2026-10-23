@@ -1,0 +1,29 @@
+[
+  {
+    "id": "synth-trend-1d",
+    "name": "Synthetic: steady uptrend",
+    "blurb": "Persistent drift with moderate noise",
+    "kind": "synthetic",
+    "source": "Synthetic: seeded random walk with regime switching. Not real prices.",
+    "barsPerYear": 365,
+    "file": "synth-trend-1d.csv"
+  },
+  {
+    "id": "synth-chop-1d",
+    "name": "Synthetic: sideways chop",
+    "blurb": "No drift, mean-reverting-looking noise",
+    "kind": "synthetic",
+    "source": "Synthetic: seeded random walk with regime switching. Not real prices.",
+    "barsPerYear": 365,
+    "file": "synth-chop-1d.csv"
+  },
+  {
+    "id": "synth-crash-1d",
+    "name": "Synthetic: crash and recovery",
+    "blurb": "Boom, deep drawdown, slow recovery",
+    "kind": "synthetic",
+    "source": "Synthetic: seeded random walk with regime switching. Not real prices.",
+    "barsPerYear": 365,
+    "file": "synth-crash-1d.csv"
+  }
+]
