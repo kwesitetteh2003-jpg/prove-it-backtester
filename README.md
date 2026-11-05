@@ -67,7 +67,7 @@ Refresh the real market data (public, read-only, keyless Binance market-data end
 
 | Var | Purpose |
 |---|---|
-| `LLM_ENABLED`, `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL` | OpenAI-compatible parser. Off unless enabled **and** a key is set |
+| `VULTR_INFERENCE_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL`, `LLM_ENABLED` | Vultr Serverless Inference parser. On when the key is set; falls back to the rule parser on any error |
 | `SANDBOX_TIMEOUT_MS`, `SANDBOX_HEAP_MB` | sandbox caps (20 s / 256 MB) |
 | `MAX_CONCURRENT_SANDBOXES`, `RATE_LIMIT_PER_MIN` | abuse limits |
 | `SANDBOX_NET_ISOLATION=off` | skip the network-namespace layer |

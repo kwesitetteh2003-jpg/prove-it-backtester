@@ -5,9 +5,10 @@ import type { StrategySpec } from "../engine/types.js";
 export interface LlmConfig { enabled: boolean; baseUrl: string; apiKey: string; model: string; timeoutMs: number }
 
 export function llmConfig(env: NodeJS.ProcessEnv = process.env): LlmConfig {
-  const key = env.LLM_API_KEY ?? "";
+  const key = (env.VULTR_INFERENCE_API_KEY || env.LLM_API_KEY || "").trim();
+  // On when a key is present, unless explicitly disabled with LLM_ENABLED=false.
   return {
-    enabled: env.LLM_ENABLED === "true" && key.length > 0,
+    enabled: key.length > 0 && env.LLM_ENABLED !== "false",
     baseUrl: (env.LLM_BASE_URL ?? "https://api.vultrinference.com/v1").replace(/\/$/, ""),
     apiKey: key,
     model: env.LLM_MODEL ?? "",
@@ -42,6 +43,19 @@ export function extractJson(text: string): unknown {
   return JSON.parse(body.slice(start, end + 1));
 }
 
+let cachedModel = "";
+/** If LLM_MODEL is unset, pick the first chat model the endpoint lists at GET /models. */
+async function discoverModel(cfg: LlmConfig, fetchImpl: typeof fetch): Promise<string> {
+  if (cachedModel) return cachedModel;
+  const res = await fetchImpl(`${cfg.baseUrl}/models`, { headers: { authorization: `Bearer ${cfg.apiKey}` }, signal: AbortSignal.timeout(cfg.timeoutMs) });
+  if (!res.ok) throw new Error(`Model list returned HTTP ${res.status}.`);
+  const j = (await res.json()) as { data?: { id?: string }[] };
+  const ids = (j.data ?? []).map((m) => m.id ?? "").filter(Boolean);
+  const pick = ids.find((id) => !/embed|whisper|tts|image|flux|stable/i.test(id));
+  if (!pick) throw new Error("No chat model available.");
+  return (cachedModel = pick);
+}
+
 /**
  * Natural language -> validated StrategySpec through any OpenAI-compatible chat endpoint
  * (Vultr Serverless Inference, OpenAI, a local vLLM, ...). The reply is parsed as DATA and
@@ -49,12 +63,12 @@ export function extractJson(text: string): unknown {
  */
 export async function llmParse(prompt: string, common: Partial<CommonParams>, cfg: LlmConfig, fetchImpl: typeof fetch = fetch): Promise<StrategySpec> {
   if (!cfg.enabled) throw new Error("LLM is not enabled.");
-  if (!cfg.model) throw new Error("LLM_MODEL is not set.");
+  const model = cfg.model || (await discoverModel(cfg, fetchImpl));
   const res = await fetchImpl(`${cfg.baseUrl}/chat/completions`, {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${cfg.apiKey}` },
     body: JSON.stringify({
-      model: cfg.model, temperature: 0, max_tokens: 900,
+      model, temperature: 0, max_tokens: 900,
       messages: [{ role: "system", content: SYSTEM }, { role: "user", content: prompt.slice(0, 2000) }],
     }),
     signal: AbortSignal.timeout(cfg.timeoutMs),
